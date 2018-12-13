@@ -30,6 +30,8 @@ paths:
       description: Return a set of students
       # used as the method name of the controller
       operationId: getStudents
+      security:
+        - APIKeyHeader: []
       responses:
         "200":
           description: Success
