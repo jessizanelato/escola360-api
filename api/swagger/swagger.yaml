@@ -1,0 +1,181 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Escola 360 API
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+securityDefinitions:
+  APIKeyHeader:
+     type: apiKey
+     in: header
+     name: X-API-Key
+paths:
+  /student:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: students
+    get:
+      description: Return a set of students
+      # used as the method name of the controller
+      operationId: getStudents
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/StudentResponse"
+        "401":
+          description: Unauthorized Access
+          schema:
+            $ref: "#/definitions/UnauthorizedError"
+        "403":
+          description: Unknown Security Handler
+          schema:
+            $ref: "#/definitions/UnknownSecurityHandler"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Add a new student to the set
+      # used as the method name of the controller
+      operationId: addStudent
+      security:
+        - APIKeyHeader: []
+      parameters:
+        - in: body
+          name: student
+          description: The student to create.
+          schema: 
+            $ref: "#/definitions/NewStudent"
+      responses:
+        "200":
+          description: Success - Return the new student
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/StudentResponse"
+        "401":
+          description: Unauthorized Access
+          schema:
+            $ref: "#/definitions/UnauthorizedError"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /student/{id}:
+    x-swagger-router-controller: students
+    get:
+      description: Return detail of a student
+      # used as the method name of the controller
+      operationId: getStudent
+      security:
+        - APIKeyHeader: []
+      parameters:
+        - name: id
+          in: path
+          description: The id of the student
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/StudentResponse"
+        "401":
+          description: Unauthorized Access
+          schema:
+            $ref: "#/definitions/UnauthorizedError"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      description: Update a specific student
+      # used as the method name of the controller
+      operationId: updateStudent
+      security:
+        - APIKeyHeader: []
+      parameters:
+        - name: id
+          in: path
+          description: The id of the student
+          required: true
+          type: string
+        - in: body
+          name: student
+          description: The student to update
+          schema: 
+            $ref: "#/definitions/NewStudent"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/StudentResponse"
+        "401":
+          description: Unauthorized Access
+          schema:
+            $ref: "#/definitions/UnauthorizedError"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  StudentResponse:
+    required:
+      - id
+      - name
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      birthday:
+        type: string
+  NewStudent:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      birthday:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  UnauthorizedError:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  UnknownSecurityHandler:
+    required:
+      - message
+    properties:
+      message:
+        type: string
